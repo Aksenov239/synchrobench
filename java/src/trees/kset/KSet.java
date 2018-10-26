@@ -141,12 +141,7 @@ public class KSet extends AbstractCompositionalIntSet {
         }
 
         if (copy[m] > v) {
-            for (int i = 0; i < K; i++) {
-                if (newNode.values.get(i) == EMPTY) {
-                    newNode.values.set(i, v);
-                    break;
-                }
-            }
+            newNode.values.set(m, v);
         }
 
         newNode.min = copy[0];
