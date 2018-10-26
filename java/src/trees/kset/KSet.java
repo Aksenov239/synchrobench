@@ -134,10 +134,19 @@ public class KSet extends AbstractCompositionalIntSet {
         }
         Arrays.sort(copy);
         Node newNode = new Node();
-        newNode.lock.lock();
+//        newNode.lock.lock();
         int m = copy.length / 2;
         for (int i = 0; i < m; i++) {
             newNode.values.set(i, copy[i]);
+        }
+
+        if (copy[m] > v) {
+            for (int i = 0; i < K; i++) {
+                if (newNode.values.get(i) == EMPTY) {
+                    newNode.values.set(i, v);
+                    break;
+                }
+            }
         }
 
         newNode.min = copy[0];
@@ -161,13 +170,6 @@ public class KSet extends AbstractCompositionalIntSet {
                     break;
                 }
             }
-        } else {
-            for (int i = 0; i < K; i++) {
-                if (newNode.values.get(i) == EMPTY) {
-                    newNode.values.set(i, v);
-                    break;
-                }
-            }
         }
 
         Node parent = chooseParent(curr, prev);
@@ -184,7 +186,7 @@ public class KSet extends AbstractCompositionalIntSet {
         parent.treeLock.unlock();
 
         prev.lock.unlock();
-        newNode.lock.unlock();
+//        newNode.lock.unlock();
         curr.lock.unlock();
 
 //        verify(root);
