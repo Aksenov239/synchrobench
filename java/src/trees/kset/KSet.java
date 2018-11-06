@@ -1,6 +1,7 @@
 package trees.kset;
 
 import contention.abstractions.AbstractCompositionalIntSet;
+import contention.abstractions.MaintenanceAlg;
 
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicIntegerArray;
@@ -11,7 +12,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * Date: 23.10.2018
  * Time: 12:38
  */
-public class KSet extends AbstractCompositionalIntSet {
+public class KSet extends AbstractCompositionalIntSet implements MaintenanceAlg {
     public static final int K = 2;
 
     public static final int EMPTY = Integer.MIN_VALUE + 1;
@@ -444,5 +445,24 @@ public class KSet extends AbstractCompositionalIntSet {
 
     public KSet() {
         clear();
+    }
+
+    public long getStructMods() {
+        return 0;
+    }
+
+    public int height(Node node){
+        if (node == null)
+            return 0;
+        return Math.max(height(node.l), height(node.r)) + 1;
+    }
+
+    public boolean stopMaintenance() {
+        System.out.println("Height of the tree: " + height(root));
+        return true;
+    }
+
+    public int numNodes() {
+        return size();
     }
 }
