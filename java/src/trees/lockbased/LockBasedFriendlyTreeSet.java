@@ -22,7 +22,8 @@ import java.util.concurrent.locks.ReentrantLock;
  * 
  */
 
-public class LockBasedFriendlyTreeSet extends AbstractCompositionalIntSet {
+public class LockBasedFriendlyTreeSet extends AbstractCompositionalIntSet
+		implements MaintenanceAlg {
 
 	static final boolean useFairLocks = false;
 	static final boolean allocateOutside = true;
