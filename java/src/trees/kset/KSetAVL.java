@@ -321,7 +321,7 @@ public class KSetAVL extends AbstractCompositionalIntSet implements MaintenanceA
         Node prev = curr.prev;
         while (true) {
             prev.lock.lock();
-            if (prev.deleted) {
+            if (prev.deleted || prev.succ != curr) {
                 prev.lock.unlock();
                 prev = curr.prev;
             } else {
