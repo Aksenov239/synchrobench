@@ -609,22 +609,6 @@ public class KSetAVL64 extends AbstractCompositionalIntSet implements Maintenanc
         curr = adjustToLeft(v, curr);
 
         while (true) {
-            for (int i = 0; i < K; i++) {
-                if (curr.values.get(i) == v) {
-                    return true;
-                }
-            }
-            if (curr.min < v) {
-                return false;
-            }
-            curr = curr.prev;
-        }
-    }
-
-    public int size() {
-        Node curr = root;
-        int total = 0;
-        while (curr != null) {
             if (curr.min <= v) {
                 for (int i = 0; i < K; i++) {
                     if (curr.values.get(i) == v && !curr.deleted) {
@@ -636,6 +620,19 @@ public class KSetAVL64 extends AbstractCompositionalIntSet implements Maintenanc
                 }
             }
             curr = curr.prev;
+        }
+    }
+
+    public int size() {
+        Node curr = root;
+        int total = 0;
+        while (curr != null) {
+            for (int i = 0; i < K; i++) {
+                if (curr.values.get(i) > EMPTY) {
+                    total++;
+                }
+            }
+            curr = curr.succ;
         }
         return total - 1;
     }
