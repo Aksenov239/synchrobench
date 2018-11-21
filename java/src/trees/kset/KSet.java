@@ -13,7 +13,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * Time: 12:38
  */
 public class KSet extends AbstractCompositionalIntSet implements MaintenanceAlg {
-    public static final int K = 2;
+    public static final int K = 32;
 
     public static final int EMPTY = Integer.MIN_VALUE + 1;
 
@@ -120,7 +120,7 @@ public class KSet extends AbstractCompositionalIntSet implements MaintenanceAlg 
         Node prev = curr.prev;
         while (true) {
             prev.lock.lock();
-            if (prev.deleted) {
+            if (prev.deleted || prev.succ != curr) {
                 prev.lock.unlock();
                 prev = curr.prev;
             } else {
@@ -385,13 +385,15 @@ public class KSet extends AbstractCompositionalIntSet implements MaintenanceAlg 
         curr = adjustToLeft(v, curr);
 
         while (true) {
-            for (int i = 0; i < K; i++) {
-                if (curr.values.get(i) == v) {
-                    return true;
+            if (curr.min <= v) {
+                for (int i = 0; i < K; i++) {
+                    if (curr.values.get(i) == v && !curr.deleted) {
+                        return true;
+                    }
                 }
-            }
-            if (curr.min < v) {
-                return false;
+                if (curr.min <= v) {
+                    return false;
+                }
             }
             curr = curr.prev;
         }
