@@ -1,0 +1,431 @@
+-------------------------------------------------------------------------------
+Synchrobench-java
+A benchmark-suite to evaluate synchronization techniques
+-------------------------------------------------------------------------------
+
+Benchmark parameters
+--------------------
+  Detailed stats:          	enabled
+  Number of threads:       	32
+  Length:                  	10000 ms
+  Write ratio:             	20 %
+  WriteAll ratio:          	0 %
+  Snapshot ratio:          	0 %
+  Size:                    	262144 elts
+  Range:                   	524288 elts
+  WarmUp:                  	5 s
+  Iterations:              	5
+  Benchmark:               	trees.kset.KSetAVL64
+  Skewed:                  	0
+Thread #16 finished.
+Thread #22 finished.
+Thread #30 finished.
+Thread #8 finished.
+Thread #31 finished.
+Thread #21 finished.
+Thread #10 finished.
+Thread #25 finished.
+Thread #7 finished.
+Thread #2 finished.
+Thread #13 finished.
+Thread #26 finished.
+Thread #1 finished.
+Thread #18 finished.
+Thread #28 finished.
+Thread #23 finished.
+Thread #19 finished.
+Thread #5 finished.
+Thread #29 finished.
+Thread #27 finished.
+Thread #14 finished.
+Thread #11 finished.
+Thread #9 finished.
+Thread #12 finished.
+Thread #3 finished.
+Thread #4 finished.
+Thread #15 finished.
+Thread #24 finished.
+Thread #6 finished.
+Thread #0 finished.
+Thread #17 finished.
+Thread #20 finished.
+Thread #2 finished.
+Thread #19 finished.
+Thread #16 finished.
+Thread #25 finished.
+Thread #12 finished.
+Thread #29 finished.
+Thread #15 finished.
+Thread #28 finished.
+Thread #31 finished.
+Thread #0 finished.
+Thread #3 finished.
+Thread #4 finished.
+Thread #23 finished.
+Thread #17 finished.
+Thread #27 finished.
+Thread #13 finished.
+Thread #30 finished.
+Thread #11 finished.
+Thread #24 finished.
+Thread #8 finished.
+Thread #20 finished.
+Thread #10 finished.
+Thread #21 finished.
+Thread #26 finished.
+Thread #9 finished.
+Thread #18 finished.
+Thread #14 finished.
+Thread #1 finished.
+Thread #7 finished.
+Thread #6 finished.
+Thread #22 finished.
+Thread #5 finished.
+Height of the tree: 16
+-------------------------------------------------------------------------------
+Benchmark statistics
+-------------------------------------------------------------------------------
+  Average traversal length: 	NaN
+  Struct Modifications:     	0
+  Throughput (ops/s):       	3.4817953145249724E7
+  Elapsed time (s):         	10.031
+  Operations:               	349258888	( 100 %)
+    effective updates:     	34925033	( 10.00 %)
+    |--add successful:     	17462608	( 5.00 %)
+    |--remove succ.:       	17462425	( 5.00 %)
+    |--addAll succ.:       	0	( 0.00 %)
+    |--removeAll succ.:    	0	( 0.00 %)
+    size successful:       	0	( 0.00 %)
+    contains succ.:        	139659525	( 39.99 %)
+    unsuccessful ops:      	174674330	( 50.01 %)
+  Final size:              	262327
+  Expected size:           	262327
+  #nodes (inc. deleted): 	262327
+-------------------------------------------------------------------------------
+TM statistics
+-------------------------------------------------------------------------------
+  Commits:                  	0
+  |--regular read only  (%) 	0	( NaN %)
+  |--elastic (%)            	0	( NaN %)
+  |--regular update (%)     	0	( NaN %)
+  Starts:                   	0
+  Aborts:                   	0	( 100 %)
+  |--between succ. reads:   	0	( NaN %)
+  |--between read & write:  	0	( NaN %)
+  |--extend upon read:      	0	( NaN %)
+  |--write after read:      	0	( NaN %)
+  |--locked on write:       	0	( NaN %)
+  |--locked before read:    	0	( NaN %)
+  |--locked before eread:   	0	( NaN %)
+  |--locked on read:        	0	( NaN %)
+  |--invalid commit:        	0	( NaN %)
+  |--invalid snapshot:      	0	( NaN %)
+  Read set size on avg.:    	NaN
+  Write set size on avg.:   	NaN
+  Tx time-to-commit on avg.:	NaN microsec
+  Number of elastic reads       0
+  Number of reads in RO prefix  0
+Thread #19 finished.
+Thread #9 finished.
+Thread #29 finished.
+Thread #24 finished.
+Thread #20 finished.
+Thread #1 finished.
+Thread #31 finished.
+Thread #0 finished.
+Thread #21 finished.
+Thread #25 finished.
+Thread #10 finished.
+Thread #2 finished.
+Thread #15 finished.
+Thread #11 finished.
+Thread #23 finished.
+Thread #18 finished.
+Thread #30 finished.
+Thread #5 finished.
+Thread #22 finished.
+Thread #14 finished.
+Thread #12 finished.
+Thread #26 finished.
+Thread #7 finished.
+Thread #13 finished.
+Thread #16 finished.
+Thread #4 finished.
+Thread #28 finished.
+Thread #8 finished.
+Thread #17 finished.
+Thread #27 finished.
+Thread #3 finished.
+Thread #6 finished.
+Height of the tree: 17
+-------------------------------------------------------------------------------
+Benchmark statistics
+-------------------------------------------------------------------------------
+  Average traversal length: 	NaN
+  Struct Modifications:     	0
+  Throughput (ops/s):       	5.288541076769691E7
+  Elapsed time (s):         	10.03
+  Operations:               	530440670	( 100 %)
+    effective updates:     	53052096	( 10.00 %)
+    |--add successful:     	26525869	( 5.00 %)
+    |--remove succ.:       	26526227	( 5.00 %)
+    |--addAll succ.:       	0	( 0.00 %)
+    |--removeAll succ.:    	0	( 0.00 %)
+    size successful:       	0	( 0.00 %)
+    contains succ.:        	212177688	( 40.00 %)
+    unsuccessful ops:      	265210886	( 50.00 %)
+  Final size:              	261786
+  Expected size:           	261786
+  #nodes (inc. deleted): 	261786
+-------------------------------------------------------------------------------
+TM statistics
+-------------------------------------------------------------------------------
+  Commits:                  	0
+  |--regular read only  (%) 	0	( NaN %)
+  |--elastic (%)            	0	( NaN %)
+  |--regular update (%)     	0	( NaN %)
+  Starts:                   	0
+  Aborts:                   	0	( 100 %)
+  |--between succ. reads:   	0	( NaN %)
+  |--between read & write:  	0	( NaN %)
+  |--extend upon read:      	0	( NaN %)
+  |--write after read:      	0	( NaN %)
+  |--locked on write:       	0	( NaN %)
+  |--locked before read:    	0	( NaN %)
+  |--locked before eread:   	0	( NaN %)
+  |--locked on read:        	0	( NaN %)
+  |--invalid commit:        	0	( NaN %)
+  |--invalid snapshot:      	0	( NaN %)
+  Read set size on avg.:    	NaN
+  Write set size on avg.:   	NaN
+  Tx time-to-commit on avg.:	NaN microsec
+  Number of elastic reads       0
+  Number of reads in RO prefix  0
+Thread #23 finished.
+Thread #28 finished.
+Thread #4 finished.
+Thread #15 finished.
+Thread #31 finished.
+Thread #12 finished.
+Thread #22 finished.
+Thread #26 finished.
+Thread #27 finished.
+Thread #2 finished.
+Thread #14 finished.
+Thread #20 finished.
+Thread #25 finished.
+Thread #11 finished.
+Thread #1 finished.
+Thread #7 finished.
+Thread #8 finished.
+Thread #13 finished.
+Thread #30 finished.
+Thread #16 finished.
+Thread #19 finished.
+Thread #5 finished.
+Thread #3 finished.
+Thread #29 finished.
+Thread #10 finished.
+Thread #17 finished.
+Thread #21 finished.
+Thread #9 finished.
+Thread #24 finished.
+Thread #6 finished.
+Thread #18 finished.
+Thread #0 finished.
+Height of the tree: 16
+-------------------------------------------------------------------------------
+Benchmark statistics
+-------------------------------------------------------------------------------
+  Average traversal length: 	NaN
+  Struct Modifications:     	0
+  Throughput (ops/s):       	5.2092090836573936E7
+  Elapsed time (s):         	10.029
+  Operations:               	522431579	( 100 %)
+    effective updates:     	52231841	( 10.00 %)
+    |--add successful:     	26116081	( 5.00 %)
+    |--remove succ.:       	26115760	( 5.00 %)
+    |--addAll succ.:       	0	( 0.00 %)
+    |--removeAll succ.:    	0	( 0.00 %)
+    size successful:       	0	( 0.00 %)
+    contains succ.:        	208919135	( 39.99 %)
+    unsuccessful ops:      	261280603	( 50.01 %)
+  Final size:              	262465
+  Expected size:           	262465
+  #nodes (inc. deleted): 	262465
+-------------------------------------------------------------------------------
+TM statistics
+-------------------------------------------------------------------------------
+  Commits:                  	0
+  |--regular read only  (%) 	0	( NaN %)
+  |--elastic (%)            	0	( NaN %)
+  |--regular update (%)     	0	( NaN %)
+  Starts:                   	0
+  Aborts:                   	0	( 100 %)
+  |--between succ. reads:   	0	( NaN %)
+  |--between read & write:  	0	( NaN %)
+  |--extend upon read:      	0	( NaN %)
+  |--write after read:      	0	( NaN %)
+  |--locked on write:       	0	( NaN %)
+  |--locked before read:    	0	( NaN %)
+  |--locked before eread:   	0	( NaN %)
+  |--locked on read:        	0	( NaN %)
+  |--invalid commit:        	0	( NaN %)
+  |--invalid snapshot:      	0	( NaN %)
+  Read set size on avg.:    	NaN
+  Write set size on avg.:   	NaN
+  Tx time-to-commit on avg.:	NaN microsec
+  Number of elastic reads       0
+  Number of reads in RO prefix  0
+Thread #30 finished.
+Thread #24 finished.
+Thread #31 finished.
+Thread #9 finished.
+Thread #16 finished.
+Thread #10 finished.
+Thread #18 finished.
+Thread #11 finished.
+Thread #28 finished.
+Thread #1 finished.
+Thread #6 finished.
+Thread #14 finished.
+Thread #15 finished.
+Thread #26 finished.
+Thread #17 finished.
+Thread #8 finished.
+Thread #13 finished.
+Thread #4 finished.
+Thread #29 finished.
+Thread #7 finished.
+Thread #23 finished.
+Thread #22 finished.
+Thread #20 finished.
+Thread #25 finished.
+Thread #21 finished.
+Thread #2 finished.
+Thread #3 finished.
+Thread #5 finished.
+Thread #0 finished.
+Thread #12 finished.
+Thread #27 finished.
+Thread #19 finished.
+Height of the tree: 16
+-------------------------------------------------------------------------------
+Benchmark statistics
+-------------------------------------------------------------------------------
+  Average traversal length: 	NaN
+  Struct Modifications:     	0
+  Throughput (ops/s):       	3.610427688467299E7
+  Elapsed time (s):         	10.015
+  Operations:               	361584333	( 100 %)
+    effective updates:     	36154919	( 10.00 %)
+    |--add successful:     	18077335	( 5.00 %)
+    |--remove succ.:       	18077584	( 5.00 %)
+    |--addAll succ.:       	0	( 0.00 %)
+    |--removeAll succ.:    	0	( 0.00 %)
+    size successful:       	0	( 0.00 %)
+    contains succ.:        	144602221	( 39.99 %)
+    unsuccessful ops:      	180827193	( 50.01 %)
+  Final size:              	261895
+  Expected size:           	261895
+  #nodes (inc. deleted): 	261895
+-------------------------------------------------------------------------------
+TM statistics
+-------------------------------------------------------------------------------
+  Commits:                  	0
+  |--regular read only  (%) 	0	( NaN %)
+  |--elastic (%)            	0	( NaN %)
+  |--regular update (%)     	0	( NaN %)
+  Starts:                   	0
+  Aborts:                   	0	( 100 %)
+  |--between succ. reads:   	0	( NaN %)
+  |--between read & write:  	0	( NaN %)
+  |--extend upon read:      	0	( NaN %)
+  |--write after read:      	0	( NaN %)
+  |--locked on write:       	0	( NaN %)
+  |--locked before read:    	0	( NaN %)
+  |--locked before eread:   	0	( NaN %)
+  |--locked on read:        	0	( NaN %)
+  |--invalid commit:        	0	( NaN %)
+  |--invalid snapshot:      	0	( NaN %)
+  Read set size on avg.:    	NaN
+  Write set size on avg.:   	NaN
+  Tx time-to-commit on avg.:	NaN microsec
+  Number of elastic reads       0
+  Number of reads in RO prefix  0
+Thread #10 finished.
+Thread #31 finished.
+Thread #11 finished.
+Thread #0 finished.
+Thread #18 finished.
+Thread #14 finished.
+Thread #22 finished.
+Thread #13 finished.
+Thread #21 finished.
+Thread #24 finished.
+Thread #16 finished.
+Thread #15 finished.
+Thread #9 finished.
+Thread #20 finished.
+Thread #3 finished.
+Thread #25 finished.
+Thread #6 finished.
+Thread #4 finished.
+Thread #23 finished.
+Thread #30 finished.
+Thread #7 finished.
+Thread #8 finished.
+Thread #27 finished.
+Thread #5 finished.
+Thread #26 finished.
+Thread #28 finished.
+Thread #1 finished.
+Thread #29 finished.
+Thread #17 finished.
+Thread #2 finished.
+Thread #12 finished.
+Thread #19 finished.
+Height of the tree: 17
+-------------------------------------------------------------------------------
+Benchmark statistics
+-------------------------------------------------------------------------------
+  Average traversal length: 	NaN
+  Struct Modifications:     	0
+  Throughput (ops/s):       	5.1216841811290644E7
+  Elapsed time (s):         	10.026
+  Operations:               	513500056	( 100 %)
+    effective updates:     	51340515	( 10.00 %)
+    |--add successful:     	25670205	( 5.00 %)
+    |--remove succ.:       	25670310	( 5.00 %)
+    |--addAll succ.:       	0	( 0.00 %)
+    |--removeAll succ.:    	0	( 0.00 %)
+    size successful:       	0	( 0.00 %)
+    contains succ.:        	205385872	( 40.00 %)
+    unsuccessful ops:      	256773669	( 50.00 %)
+  Final size:              	262039
+  Expected size:           	262039
+  #nodes (inc. deleted): 	262039
+-------------------------------------------------------------------------------
+TM statistics
+-------------------------------------------------------------------------------
+  Commits:                  	0
+  |--regular read only  (%) 	0	( NaN %)
+  |--elastic (%)            	0	( NaN %)
+  |--regular update (%)     	0	( NaN %)
+  Starts:                   	0
+  Aborts:                   	0	( 100 %)
+  |--between succ. reads:   	0	( NaN %)
+  |--between read & write:  	0	( NaN %)
+  |--extend upon read:      	0	( NaN %)
+  |--write after read:      	0	( NaN %)
+  |--locked on write:       	0	( NaN %)
+  |--locked before read:    	0	( NaN %)
+  |--locked before eread:   	0	( NaN %)
+  |--locked on read:        	0	( NaN %)
+  |--invalid commit:        	0	( NaN %)
+  |--invalid snapshot:      	0	( NaN %)
+  Read set size on avg.:    	NaN
+  Write set size on avg.:   	NaN
+  Tx time-to-commit on avg.:	NaN microsec
+  Number of elastic reads       0
+  Number of reads in RO prefix  0
