@@ -471,14 +471,14 @@ public class KSetAVL8 extends AbstractCompositionalIntSet implements Maintenance
 
         curr.treeLock.lock();
 
-        if (curr.l != null) {
-            curr.l.treeLock.lock();
-        }
+//        if (curr.l != null) {
+//            curr.l.treeLock.lock();
+//        }
         Node left = curr.l;
         if (left != null) assert left.p == curr;
-        if (curr.r != null) {
-            curr.r.treeLock.lock();
-        }
+//        if (curr.r != null) {
+//            curr.r.treeLock.lock();
+//        }
         Node right = curr.r;
         if (right != null) assert right.p == curr;
 
@@ -503,12 +503,12 @@ public class KSetAVL8 extends AbstractCompositionalIntSet implements Maintenance
             if (right != null) {
                 right.p = parent;
             }
-            if (left != null) {
-                left.treeLock.unlock();
-            }
-            if (right != null) {
-                right.treeLock.unlock();
-            }
+//            if (left != null) {
+//                left.treeLock.unlock();
+//            }
+//            if (right != null) {
+//                right.treeLock.unlock();
+//            }
 
             toRebalance = parent;
 //            checkHeight(parent);
@@ -531,9 +531,9 @@ public class KSetAVL8 extends AbstractCompositionalIntSet implements Maintenance
             prev.treeLock.lock();
 
             Node sl = prev.l;
-            if (sl != null && sl != curr) {
-                sl.treeLock.lock();
-            }
+//            if (sl != null && sl != curr) {
+//                sl.treeLock.lock();
+//            }
             assert prev.r == null;
 
             if (sp.l == prev) {
@@ -565,9 +565,9 @@ public class KSetAVL8 extends AbstractCompositionalIntSet implements Maintenance
                 prev.r.p = prev;
             }
 
-            if (sl != null) {
-                sl.treeLock.unlock();
-            }
+//            if (sl != null) {
+//                sl.treeLock.unlock();
+//            }
             prev.treeLock.unlock();
 
             toRebalance = sp;
@@ -580,10 +580,10 @@ public class KSetAVL8 extends AbstractCompositionalIntSet implements Maintenance
             sp.treeLock.unlock();
 
 //            if (left != sp && left != sl) {
-            left.treeLock.unlock();
+//            left.treeLock.unlock();
 //            }
 //            if (right != sp) {
-            right.treeLock.unlock();
+//            right.treeLock.unlock();
 //            }
 //            if (curr != sp && curr != sl) {
             curr.treeLock.unlock();
