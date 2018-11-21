@@ -385,13 +385,15 @@ public class KSet extends AbstractCompositionalIntSet implements MaintenanceAlg 
         curr = adjustToLeft(v, curr);
 
         while (true) {
-            for (int i = 0; i < K; i++) {
-                if (curr.values.get(i) == v) {
-                    return true;
+            if (curr.min <= v) {
+                for (int i = 0; i < K; i++) {
+                    if (curr.values.get(i) == v && !curr.deleted) {
+                        return true;
+                    }
                 }
-            }
-            if (curr.min < v) {
-                return false;
+                if (curr.min <= v) {
+                    return false;
+                }
             }
             curr = curr.prev;
         }
