@@ -62,7 +62,7 @@ public class KSetAVL2 extends AbstractCompositionalIntSet implements Maintenance
     }
 
     public Node adjustToLeft(int v, Node curr) {
-        while (curr.min <= v) {
+        while (curr.min <= v || curr.deleted) {
             curr = curr.succ;
         }
         while (curr != null && curr.min > v) {
@@ -561,7 +561,7 @@ public class KSetAVL2 extends AbstractCompositionalIntSet implements Maintenance
             if (curr.l != null) {
                 prev.l.p = prev;
             }
-            if (curr.r.p != null) {
+            if (curr.r != null) {
                 prev.r.p = prev;
             }
 
