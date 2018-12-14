@@ -342,9 +342,6 @@ public class LockFreeCASNAVL<K, V> extends AbstractMap<K, V>
                     }
                 }
             }
-            if (desc.status != Status.UNDECIDED) {
-                return;
-            }
             while (!updateVersion.compareAndSet(desc.parent, desc.parentVersion, desc) &&
                     status != Status.FAILED) {
                 Object currentVersion = desc.parent.version;
@@ -382,11 +379,13 @@ public class LockFreeCASNAVL<K, V> extends AbstractMap<K, V>
 
         status = updateDescriptorStatus.get(desc);
         if (left) {
+            assert desc.newChild.version != desc;
             boolean zero = desc.newChild.getVersion() != 0;
             if (updateLeft.compareAndSet(desc.parent, desc, status == Status.FINISHED ? desc.newChild : desc.child)
                 && status == Status.FINISHED)
                 assert zero;
         } else {
+            assert desc.newChild.version != desc;
             boolean zero = desc.newChild.getVersion() != 0;
             if (updateRight.compareAndSet(desc.parent, desc, status == Status.FINISHED ? desc.newChild : desc.child)
                 && status == Status.FINISHED)
