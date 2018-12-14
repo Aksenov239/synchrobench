@@ -176,14 +176,14 @@ public class LockFreeCASNAVL<K, V> extends AbstractMap<K, V>
                 }
             }
             if (l.key != null && k.compareTo(l.key) == 0) {
-                if (putIfAbsent) {
-                    return l.value;
-                }
-                desc = createReplaceDesc(p, l, key, value);
-                if (desc == null) {
-                    continue;
-                }
-                found = true;
+//                if (putIfAbsent) {
+                return l.value;
+//                }
+//                desc = createReplaceDesc(p, l, key, value);
+//                if (desc == null) {
+//                    continue;
+//                }
+//                found = true;
             } else {
                 desc = createInsertDesc(p, l, key, value);
                 if (desc == null) {
@@ -202,11 +202,16 @@ public class LockFreeCASNAVL<K, V> extends AbstractMap<K, V>
     }
 
     public Descriptor<K, V> createReplaceDesc(Node<K, V> p, Node<K, V> node, K key, V value) {
-        int parentVersion = p.getVersion();
+        Integer parentVersion = p.getVersion();
         Node<K, V> nodeL = node.getLeft();
         Node<K, V> nodeR = node.getRight();
-        int nodeVersion = node.getVersion();
+        Integer nodeVersion = node.getVersion();
         boolean left = compare(node.key, p.key) < 0;
+
+        if (Integer.compare(parentVersion, 0) == 0 ||
+                Integer.compare(nodeVersion, 0) == 0) {
+            return null;
+        }
 
         if (node != (left ? p.l : p.r)) {
             return null;
@@ -225,13 +230,18 @@ public class LockFreeCASNAVL<K, V> extends AbstractMap<K, V>
         Integer parentVersion = p.getVersion();
         boolean leftParent = compare(node.key, p.key) < 0;
         boolean leftSibling = compare(node.key, key) < 0;
-        Node<K, V> newNode = new Node<>(key, value, 0, null, null);
-        Node<K, V> newParent = leftSibling ?
-                new Node<>(key, null, 1, node, newNode) : new Node<>(node.key, null, 1, newNode, node);
+        if (Integer.compare(parentVersion, 0) == 0) {
+            return null;
+        }
 
         if (node != (leftParent ? p.l : p.r)) {
             return null;
         }
+
+        Node<K, V> newNode = new Node<>(key, value, 0, null, null);
+        Node<K, V> newParent = leftSibling ?
+                new Node<>(key, null, 1, node, newNode) : new Node<>(node.key, null, 1, newNode, node);
+
         return new Descriptor<>(p, node, newParent, parentVersion, new Node[]{}, new Integer[]{});
     }
 
@@ -280,6 +290,11 @@ public class LockFreeCASNAVL<K, V> extends AbstractMap<K, V>
         Integer gpVersion = gp.getVersion();
         Integer pVersion = p.getVersion();
         Integer lVersion = l.getVersion();
+        if (Integer.compare(gpVersion, 0) == 0 ||
+                Integer.compare(pVersion, 0) == 0 ||
+                Integer.compare(lVersion, 0) == 0) {
+            return null;
+        }
         if (p != (gpLeft ? gp.l : gp.r)) {
             return null;
         }
@@ -371,8 +386,12 @@ public class LockFreeCASNAVL<K, V> extends AbstractMap<K, V>
         status = updateDescriptorStatus.get(desc);
         if (left) {
             updateLeft.set(desc.parent, status == Status.FINISHED ? desc.newChild : desc.child);
+            if (status == Status.FINISHED)
+                assert desc.newChild.getVersion() != 0;
         } else {
             updateRight.set(desc.parent, status == Status.FINISHED ? desc.newChild : desc.child);
+            if (status == Status.FINISHED)
+                assert desc.newChild.getVersion() != 0;
         }
         updateVersion.set(desc.parent, status == Status.FINISHED ? desc.parentVersion + 1 : desc.parentVersion);
         for (int i = 0; i < desc.toRemove.length; i++) {
