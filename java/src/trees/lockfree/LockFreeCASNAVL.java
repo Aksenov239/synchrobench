@@ -171,8 +171,7 @@ public class LockFreeCASNAVL<K, V> extends AbstractMap<K, V>
                     p = l;
                     l = (Node) next;
                 } else {
-                    p = l;
-                    l = ((Descriptor) next).child;
+                    CASN((Descriptor) next);
                 }
             }
             if (l.key != null && k.compareTo(l.key) == 0) {
@@ -260,9 +259,7 @@ public class LockFreeCASNAVL<K, V> extends AbstractMap<K, V>
                     p = l;
                     l = (Node<K, V>) next;
                 } else {
-                    gp = p;
-                    p = l;
-                    l = ((Descriptor<K, V>) next).child;
+                    CASN((Descriptor<K, V>) next);
                 }
             }
             if (l.key != null && k.compareTo(l.key) == 0) {
@@ -385,17 +382,19 @@ public class LockFreeCASNAVL<K, V> extends AbstractMap<K, V>
 
         status = updateDescriptorStatus.get(desc);
         if (left) {
-            updateLeft.set(desc.parent, status == Status.FINISHED ? desc.newChild : desc.child);
-            if (status == Status.FINISHED)
-                assert desc.newChild.getVersion() != 0;
+            boolean zero = desc.newChild.getVersion() != 0;
+            if (updateLeft.compareAndSet(desc.parent, desc, status == Status.FINISHED ? desc.newChild : desc.child)
+                && status == Status.FINISHED)
+                assert zero;
         } else {
-            updateRight.set(desc.parent, status == Status.FINISHED ? desc.newChild : desc.child);
-            if (status == Status.FINISHED)
-                assert desc.newChild.getVersion() != 0;
+            boolean zero = desc.newChild.getVersion() != 0;
+            if (updateRight.compareAndSet(desc.parent, desc, status == Status.FINISHED ? desc.newChild : desc.child)
+                && status == Status.FINISHED)
+                assert zero;
         }
-        updateVersion.set(desc.parent, status == Status.FINISHED ? desc.parentVersion + 1 : desc.parentVersion);
+        updateVersion.compareAndSet(desc.parent, desc, status == Status.FINISHED ? desc.parentVersion + 1 : desc.parentVersion);
         for (int i = 0; i < desc.toRemove.length; i++) {
-            updateVersion.set(desc.toRemove[i], status == Status.FINISHED ? new Integer(0) : desc.versions[i]);
+            updateVersion.compareAndSet(desc.toRemove[i], desc, status == Status.FINISHED ? new Integer(0) : desc.versions[i]);
         }
     }
 
