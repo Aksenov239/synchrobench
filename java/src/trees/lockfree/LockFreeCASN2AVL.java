@@ -177,7 +177,7 @@ public class LockFreeCASN2AVL<K, V> extends AbstractMap<K, V>
                 node = desc.child;
             }
         }
-        return k.compareTo(node.key) == 0 ? (V) node.value : null;
+        return node.key != null && k.compareTo(node.key) == 0 ? (V) node.value : null;
     }
 
     public final V put(final K key, final V value) {
