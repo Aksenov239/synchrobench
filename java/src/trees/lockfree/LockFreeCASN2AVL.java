@@ -12,7 +12,7 @@ import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
  * Date: 13.12.2018
  * Time: 18:05
  */
-public class LockFreeCASNAVL<K, V> extends AbstractMap<K, V>
+public class LockFreeCASN2AVL<K, V> extends AbstractMap<K, V>
         implements CompositionalMap<K, V> {
     public class Node<K, V> {
         final K key;
@@ -33,8 +33,8 @@ public class LockFreeCASNAVL<K, V> extends AbstractMap<K, V>
 
         public Node<K, V> getLeft() {
             Object left = l;
-            while (left != null && left instanceof Descriptor) {
-                CASN((Descriptor) left);
+            while (left != null && left instanceof AbstractDescriptor) {
+                help((AbstractDescriptor) left);
                 left = l;
             }
             return (Node<K, V>) left;
@@ -42,8 +42,8 @@ public class LockFreeCASNAVL<K, V> extends AbstractMap<K, V>
 
         public Node<K, V> getRight() {
             Object right = r;
-            while (right != null && right instanceof Descriptor) {
-                CASN((Descriptor) right);
+            while (right != null && right instanceof AbstractDescriptor) {
+                help((AbstractDescriptor) right);
                 right = r;
             }
             return (Node<K, V>) right;
@@ -51,8 +51,8 @@ public class LockFreeCASNAVL<K, V> extends AbstractMap<K, V>
 
         public Integer getVersion() {
             Object version = this.version;
-            while (version instanceof Descriptor) {
-                CASN((Descriptor) version);
+            while (version instanceof AbstractDescriptor) {
+                help((AbstractDescriptor) version);
                 version = this.version;
             }
             return (Integer) version;
@@ -65,7 +65,10 @@ public class LockFreeCASNAVL<K, V> extends AbstractMap<K, V>
         FINISHED
     }
 
-    public class Descriptor<K, V> {
+    public interface AbstractDescriptor<K, V> {
+    }
+
+    public class Descriptor<K, V> implements AbstractDescriptor {
         volatile Node<K, V>[] toRemove;
         volatile Integer[] versions;
         volatile Node<K, V> parent;
@@ -86,12 +89,40 @@ public class LockFreeCASNAVL<K, V> extends AbstractMap<K, V>
         }
     }
 
+    class DCSS1<K, V> implements AbstractDescriptor {
+        volatile Descriptor<K, V> descriptor;
+        volatile Node<K, V> node;
+        volatile boolean left;
+        volatile Node<K, V> expected;
+
+        public DCSS1(Descriptor<K, V> descriptor, Node<K, V> node, boolean left,
+                     Node<K, V> expected) {
+            this.descriptor = descriptor;
+            this.node = node;
+            this.left = left;
+            this.expected = expected;
+        }
+    }
+
+    class DCSS2<K, V> implements AbstractDescriptor {
+        volatile Descriptor<K, V> descriptor;
+        volatile Node<K, V> node;
+        volatile Integer expected;
+
+        public DCSS2(Descriptor<K, V> descriptor, Node<K, V> node,
+                     Integer expected) {
+            this.descriptor = descriptor;
+            this.node = node;
+            this.expected = expected;
+        }
+    }
+
     private Comparator<? super K> comparator;
     private AtomicReferenceFieldUpdater<Node, Object> updateLeft, updateRight, updateVersion;
     private AtomicReferenceFieldUpdater<Descriptor, Status> updateDescriptorStatus;
     private Node<K, V> root;
 
-    public LockFreeCASNAVL() {
+    public LockFreeCASN2AVL() {
         updateLeft = AtomicReferenceFieldUpdater.newUpdater(Node.class, Object.class, "l");
         updateRight = AtomicReferenceFieldUpdater.newUpdater(Node.class, Object.class, "r");
         updateVersion = AtomicReferenceFieldUpdater.newUpdater(Node.class, Object.class, "version");
@@ -99,7 +130,7 @@ public class LockFreeCASNAVL<K, V> extends AbstractMap<K, V>
         clear();
     }
 
-    public LockFreeCASNAVL(Comparator<? super K> comparator) {
+    public LockFreeCASN2AVL(Comparator<? super K> comparator) {
         this();
         this.comparator = comparator;
     }
@@ -171,7 +202,7 @@ public class LockFreeCASNAVL<K, V> extends AbstractMap<K, V>
                     p = l;
                     l = (Node) next;
                 } else {
-                    CASN((Descriptor) next);
+                    help((AbstractDescriptor) next);
                 }
             }
             if (l.key != null && k.compareTo(l.key) == 0) {
@@ -259,7 +290,7 @@ public class LockFreeCASNAVL<K, V> extends AbstractMap<K, V>
                     p = l;
                     l = (Node<K, V>) next;
                 } else {
-                    CASN((Descriptor<K, V>) next);
+                    help((AbstractDescriptor<K, V>) next);
                 }
             }
             if (l.key != null && k.compareTo(l.key) == 0) {
@@ -304,18 +335,112 @@ public class LockFreeCASNAVL<K, V> extends AbstractMap<K, V>
         return new Descriptor<>(gp, p, sibling, gpVersion, new Node[]{p, l}, new Integer[]{pVersion, lVersion});
     }
 
+    public void help(AbstractDescriptor<K, V> desc) {
+        if (desc instanceof Descriptor) {
+            CASN((Descriptor<K, V>) desc);
+        } else if (desc instanceof DCSS1) {
+            DCSS1Help((DCSS1<K, V>) desc);
+        } else if (desc instanceof DCSS2) {
+            DCSS2Help((DCSS2<K, V>) desc);
+        } else {
+            throw new AssertionError();
+        }
+    }
+
+    public void DCSS1Help(DCSS1<K, V> desc) {
+        if (desc.descriptor.status == Status.UNDECIDED) {
+            if (desc.left) {
+                updateLeft.compareAndSet(desc.node, desc, desc.descriptor);
+            } else {
+                updateRight.compareAndSet(desc.node, desc, desc.descriptor);
+            }
+        } else {
+            if (desc.left) {
+                updateLeft.compareAndSet(desc.node, desc, desc.expected);
+            } else {
+                updateRight.compareAndSet(desc.node, desc, desc.expected);
+            }
+        }
+    }
+
+    public void DCSS1(Descriptor<K, V> descriptor, Node<K, V> node, boolean left, Node<K, V> expected) {
+        DCSS1<K, V> desc = new DCSS1<>(descriptor, node, left, expected);
+        boolean swapped = false;
+        while (true) {
+            if (left) {
+                swapped = updateLeft.compareAndSet(node, expected, desc);
+//                System.err.println("DCSS1 "  + node + " " + expected + " " + swapped);
+                Object l = node.l;
+                if (l instanceof AbstractDescriptor) {
+                    if (l != desc && l != descriptor) {
+                        help((AbstractDescriptor<K, V>) l);
+                    } else {
+                        break;
+                    }
+                } else {
+                    break;
+                }
+            } else {
+                swapped = updateRight.compareAndSet(node, expected, desc);
+                Object r = node.r;
+                if (r instanceof AbstractDescriptor) {
+                    if (r != desc && r != descriptor) {
+                        help((AbstractDescriptor<K, V>) r);
+                    } else {
+                        break;
+                    }
+                } else {
+                    break;
+                }
+            }
+        }
+        if (swapped) {
+            DCSS1Help(desc);
+        }
+    }
+
+    public void DCSS2Help(DCSS2<K, V> desc) {
+        if (desc.descriptor.status == Status.UNDECIDED) {
+            updateVersion.compareAndSet(desc.node, desc, desc.descriptor);
+        } else {
+            updateVersion.compareAndSet(desc.node, desc, desc.expected);
+        }
+    }
+
+    public void DCSS2(Descriptor<K, V> descriptor, Node<K, V> node, Integer expected) {
+        DCSS2<K, V> desc = new DCSS2<>(descriptor, node, expected);
+        boolean swapped = false;
+        while (true) {
+            swapped = updateVersion.compareAndSet(node, expected, desc);
+            Object v = node.version;
+            if (v instanceof AbstractDescriptor) {
+                if (v != desc && v != descriptor) {
+                    help((AbstractDescriptor<K, V>) v);
+                } else {
+                    break;
+                }
+            } else {
+                break;
+            }
+        }
+        if (swapped) {
+            DCSS2Help(desc);
+        }
+    }
+
     public void CASN(Descriptor<K, V> desc) {
         boolean left = compare(desc.child.key, desc.parent.key) < 0;
         Status status;
         if (desc.status == Status.UNDECIDED) {
             status = Status.FINISHED;
             if (left) {
-                while (!updateLeft.compareAndSet(desc.parent, desc.child, desc) &&
-                        status != Status.FAILED) {
+                while (status != Status.FAILED && desc.status == Status.UNDECIDED) {
+//                    System.err.println("CASN " + desc + " " + desc.parent + " " + desc.parent.l);
+                    DCSS1(desc, desc.parent, true, desc.child);
                     Object currentLeft = desc.parent.l;
-                    if (currentLeft instanceof Descriptor) {
+                    if (currentLeft instanceof AbstractDescriptor) {
                         if (currentLeft != desc) {
-                            CASN((Descriptor<K, V>) currentLeft);
+                            help((AbstractDescriptor<K, V>) currentLeft);
                         } else {
                             break;
                         }
@@ -326,12 +451,12 @@ public class LockFreeCASNAVL<K, V> extends AbstractMap<K, V>
                     }
                 }
             } else {
-                while (!updateRight.compareAndSet(desc.parent, desc.child, desc) &&
-                        status != Status.FAILED) {
+                while (status != Status.FAILED && desc.status == Status.UNDECIDED) {
+                    DCSS1(desc, desc.parent, false, desc.child);
                     Object currentRight = desc.parent.r;
-                    if (currentRight instanceof Descriptor) {
+                    if (currentRight instanceof AbstractDescriptor) {
                         if (currentRight != desc) {
-                            CASN((Descriptor<K, V>) currentRight);
+                            help((AbstractDescriptor<K, V>) currentRight);
                         } else {
                             break;
                         }
@@ -342,33 +467,33 @@ public class LockFreeCASNAVL<K, V> extends AbstractMap<K, V>
                     }
                 }
             }
-            while (!updateVersion.compareAndSet(desc.parent, desc.parentVersion, desc) &&
-                    status != Status.FAILED) {
+            while (status != Status.FAILED && desc.status == Status.UNDECIDED) {
+                DCSS2(desc, desc.parent, desc.parentVersion);
                 Object currentVersion = desc.parent.version;
-                if (currentVersion instanceof Descriptor) {
+                if (currentVersion instanceof AbstractDescriptor) {
                     if (currentVersion != desc) {
-                        CASN((Descriptor<K, V>) currentVersion);
+                        help((AbstractDescriptor<K, V>) currentVersion);
                     } else {
                         break;
                     }
                 } else {
-                    if (Integer.compare((Integer) currentVersion, desc.parentVersion) != 0) {
+                    if (currentVersion != desc.parentVersion) {
                         status = Status.FAILED;
                     }
                 }
             }
             for (int i = 0; i < desc.toRemove.length; i++) {
-                while (!updateVersion.compareAndSet(desc.toRemove[i], desc.versions[i], desc) &&
-                        status != Status.FAILED) {
+                while (status != Status.FAILED && desc.status == Status.UNDECIDED) {
+                    DCSS2(desc, desc.toRemove[i], desc.versions[i]);
                     Object currentVersion = desc.toRemove[i].version;
-                    if (currentVersion instanceof Descriptor) {
+                    if (currentVersion instanceof AbstractDescriptor) {
                         if (currentVersion != desc) {
-                            CASN((Descriptor<K, V>) currentVersion);
+                            help((AbstractDescriptor<K, V>) currentVersion);
                         } else {
                             break;
                         }
                     } else {
-                        if (Integer.compare((Integer) currentVersion, desc.versions[i]) != 0) {
+                        if (currentVersion != desc.versions[i]) {
                             status = Status.FAILED;
                         }
                     }
@@ -381,15 +506,17 @@ public class LockFreeCASNAVL<K, V> extends AbstractMap<K, V>
         if (left) {
             assert desc.newChild.version != desc;
             boolean zero = desc.newChild.getVersion() != 0;
-            if (updateLeft.compareAndSet(desc.parent, desc, status == Status.FINISHED ? desc.newChild : desc.child)
-                && status == Status.FINISHED)
-                assert zero;
+            if (updateLeft.compareAndSet(desc.parent, desc, status == Status.FINISHED ? desc.newChild : desc.child))
+                if (status == Status.FINISHED)
+                    assert zero;
+//            updateLeft.compareAndSet(desc.parent, desc, status == Status.FINISHED ? desc.newChild : desc.child);
         } else {
             assert desc.newChild.version != desc;
             boolean zero = desc.newChild.getVersion() != 0;
-            if (updateRight.compareAndSet(desc.parent, desc, status == Status.FINISHED ? desc.newChild : desc.child)
-                && status == Status.FINISHED)
-                assert zero;
+            if (updateRight.compareAndSet(desc.parent, desc, status == Status.FINISHED ? desc.newChild : desc.child))
+                if (status == Status.FINISHED)
+                    assert zero;
+//            updateRight.compareAndSet(desc.parent, desc, status == Status.FINISHED ? desc.newChild : desc.child);
         }
         updateVersion.compareAndSet(desc.parent, desc, status == Status.FINISHED ? desc.parentVersion + 1 : desc.parentVersion);
         for (int i = 0; i < desc.toRemove.length; i++) {
