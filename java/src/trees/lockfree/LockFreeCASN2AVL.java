@@ -169,7 +169,7 @@ public class LockFreeCASN2AVL<K, V> extends AbstractMap<K, V>
 
         Node<K, V> node = root;
         while (node.l != null) {
-            Object next = k.compareTo(node.key) < 0 ? node.l : node.r;
+            Object next = node.key == null || k.compareTo(node.key) < 0 ? node.l : node.r;
             if (next instanceof Node) {
                 node = (Node) next;
             } else {
