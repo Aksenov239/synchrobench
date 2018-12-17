@@ -172,9 +172,12 @@ public class LockFreeCASN2AVL<K, V> extends AbstractMap<K, V>
             Object next = node.key == null || k.compareTo(node.key) < 0 ? node.l : node.r;
             if (next instanceof Node) {
                 node = (Node) next;
-            } else {
+            } else if (next instanceof Descriptor) {
                 Descriptor desc = (Descriptor) next;
                 node = desc.child;
+            } else if (next instanceof DCSS1) {
+                DCSS1 desc = (DCSS1) next;
+                node = desc.expected;
             }
         }
         return node.key != null && k.compareTo(node.key) == 0 ? (V) node.value : null;
