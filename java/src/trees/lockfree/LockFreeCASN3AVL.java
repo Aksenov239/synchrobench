@@ -338,11 +338,96 @@ public class LockFreeCASN3AVL<K, V> extends AbstractMap<K, V>
     public void help(AbstractDescriptor<K, V> desc) {
         if (desc instanceof Descriptor) {
             CASN((Descriptor<K, V>) desc);
+        } else if (desc instanceof DCSS1) {
+            DCSS1Help((DCSS1<K, V>) desc);
+        } else if (desc instanceof DCSS2) {
+            DCSS2Help((DCSS2<K, V>) desc);
         } else {
             throw new AssertionError();
         }
     }
-    
+
+    public void DCSS1Help(DCSS1<K, V> desc) {
+        if (desc.descriptor.status == Status.UNDECIDED) {
+            if (desc.left) {
+                updateLeft.compareAndSet(desc.node, desc, desc.descriptor);
+            } else {
+                updateRight.compareAndSet(desc.node, desc, desc.descriptor);
+            }
+        } else {
+            if (desc.left) {
+                updateLeft.compareAndSet(desc.node, desc, desc.expected);
+            } else {
+                updateRight.compareAndSet(desc.node, desc, desc.expected);
+            }
+        }
+    }
+
+    public void DCSS1(Descriptor<K, V> descriptor, Node<K, V> node, boolean left, Node<K, V> expected) {
+        DCSS1<K, V> desc = new DCSS1<>(descriptor, node, left, expected);
+        boolean swapped = false;
+        while (true) {
+            if (left) {
+                swapped = updateLeft.compareAndSet(node, expected, desc);
+//                System.err.println("DCSS1 "  + node + " " + expected + " " + swapped);
+                Object l = node.l;
+                if (l instanceof AbstractDescriptor) {
+                    if (l != desc && l != descriptor) {
+                        help((AbstractDescriptor<K, V>) l);
+                    } else {
+                        break;
+                    }
+                } else {
+                    break;
+                }
+            } else {
+                swapped = updateRight.compareAndSet(node, expected, desc);
+                Object r = node.r;
+                if (r instanceof AbstractDescriptor) {
+                    if (r != desc && r != descriptor) {
+                        help((AbstractDescriptor<K, V>) r);
+                    } else {
+                        break;
+                    }
+                } else {
+                    break;
+                }
+            }
+        }
+        if (swapped) {
+            DCSS1Help(desc);
+        }
+    }
+
+    public void DCSS2Help(DCSS2<K, V> desc) {
+        if (desc.descriptor.status == Status.UNDECIDED) {
+            updateVersion.compareAndSet(desc.node, desc, desc.descriptor);
+        } else {
+            updateVersion.compareAndSet(desc.node, desc, desc.expected);
+        }
+    }
+
+    public void DCSS2(Descriptor<K, V> descriptor, Node<K, V> node, Integer expected) {
+        DCSS2<K, V> desc = new DCSS2<>(descriptor, node, expected);
+        boolean swapped = false;
+        while (true) {
+            swapped = updateVersion.compareAndSet(node, expected, desc);
+            Object v = node.version;
+            if (v instanceof AbstractDescriptor) {
+                if (v != desc && v != descriptor) {
+                    help((AbstractDescriptor<K, V>) v);
+                } else {
+                    break;
+                }
+            } else {
+                break;
+            }
+        }
+        if (swapped) {
+            DCSS2Help(desc);
+        }
+    }
+
     public void CASN(Descriptor<K, V> desc) {
         boolean left = compare(desc.child.key, desc.parent.key) < 0;
         Status status;
@@ -351,8 +436,8 @@ public class LockFreeCASN3AVL<K, V> extends AbstractMap<K, V>
             if (left) {
                 while (status != Status.FAILED && desc.status == Status.UNDECIDED) {
 //                    System.err.println("CASN " + desc + " " + desc.parent + " " + desc.parent.l);
-                    updateLeft.compareAndSet(desc.parent, desc.child, desc);
 //                    DCSS1(desc, desc.parent, true, desc.child);
+                    updateLeft.compareAndSet(desc.parent, desc.child, desc);
                     Object currentLeft = desc.parent.l;
                     if (currentLeft instanceof AbstractDescriptor) {
                         if (currentLeft != desc) {
@@ -368,8 +453,8 @@ public class LockFreeCASN3AVL<K, V> extends AbstractMap<K, V>
                 }
             } else {
                 while (status != Status.FAILED && desc.status == Status.UNDECIDED) {
-                    updateRight.compareAndSet(desc.parent, desc.child, desc);
 //                    DCSS1(desc, desc.parent, false, desc.child);
+                    updateRight.compareAndSet(desc.parent, desc.child, desc);
                     Object currentRight = desc.parent.r;
                     if (currentRight instanceof AbstractDescriptor) {
                         if (currentRight != desc) {
