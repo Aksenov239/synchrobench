@@ -163,6 +163,8 @@ public class LockFreeCASN3AVL<K, V> extends AbstractMap<K, V>
     public V doPut(final K key, final V value, boolean putIfAbsent) {
         final Comparable<? super K> k = comparable(key);
 
+//        System.err.println("Put " + key);
+
         boolean found;
         Descriptor desc;
         while (true) {
@@ -194,6 +196,7 @@ public class LockFreeCASN3AVL<K, V> extends AbstractMap<K, V>
                 found = false;
             }
             initiateCASN(desc);
+//            binarySearch(root);
 //            System.err.println("Insert " + key);
 //            System.err.println(toString());
 //            assert binarySearch(root);
@@ -344,20 +347,10 @@ public class LockFreeCASN3AVL<K, V> extends AbstractMap<K, V>
         }
         updateDescriptorStatus.compareAndSet(desc, Status.UNDECIDED, status);
         status = updateDescriptorStatus.get(desc);
-        if (compare(desc.parent.key, desc.child.key) < 0) {
-            assert desc.newChild.version != desc;
-            boolean zero = desc.newChild.getVersion() != 0;
-            if (updateLeft.compareAndSet(desc.parent, desc, status == Status.FINISHED ? desc.newChild : desc.child))
-                if (status == Status.FINISHED)
-                    assert zero;
-//            updateLeft.compareAndSet(desc.parent, desc, status == Status.FINISHED ? desc.newChild : desc.child);
+        if (compare(desc.child.key, desc.parent.key) < 0) {
+            updateLeft.compareAndSet(desc.parent, desc, status == Status.FINISHED ? desc.newChild : desc.child);
         } else {
-            assert desc.newChild.version != desc;
-            boolean zero = desc.newChild.getVersion() != 0;
-            if (updateRight.compareAndSet(desc.parent, desc, status == Status.FINISHED ? desc.newChild : desc.child))
-                if (status == Status.FINISHED)
-                    assert zero;
-//            updateRight.compareAndSet(desc.parent, desc, status == Status.FINISHED ? desc.newChild : desc.child);
+            updateRight.compareAndSet(desc.parent, desc, status == Status.FINISHED ? desc.newChild : desc.child);
         }
         updateVersion.compareAndSet(desc.parent, desc, status == Status.FINISHED ? desc.parentVersion + 1 : desc.parentVersion);
         for (int i = 0; i < desc.toRemove.length; i++) {
@@ -368,7 +361,7 @@ public class LockFreeCASN3AVL<K, V> extends AbstractMap<K, V>
 
     public void initiateCASN(Descriptor<K, V> desc) {
         boolean left = compare(desc.child.key, desc.parent.key) < 0;
-        while (true) {
+        while (desc.status == Status.UNDECIDED) {
             if (left) {
                 updateLeft.compareAndSet(desc.parent, desc.child, desc);
                 if (desc.parent.l != desc) {
