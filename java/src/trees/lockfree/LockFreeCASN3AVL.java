@@ -180,14 +180,14 @@ public class LockFreeCASN3AVL<K, V> extends AbstractMap<K, V>
                 }
             }
             if (l.key != null && k.compareTo(l.key) == 0) {
-//                if (putIfAbsent) {
-                return l.value;
-//                }
-//                desc = createReplaceDesc(p, l, key, value);
-//                if (desc == null) {
-//                    continue;
-//                }
-//                found = true;
+                if (putIfAbsent) {
+                    return l.value;
+                }
+                desc = createReplaceDesc(p, l, key, value);
+                if (desc == null) {
+                    continue;
+                }
+                found = true;
             } else {
                 desc = createInsertDesc(p, l, key, value);
                 if (desc == null) {
