@@ -128,10 +128,7 @@ public class ConcurrencyOptimalLinkedList extends AbstractCompositionalIntSet {
         while (true) {
             traverse(x, window);
             curr = window.curr;
-            if (curr.deleted) {
-                continue;
-            }
-            if (curr.value != x) {
+            if (curr.value != x || curr.deleted) {
                 return false;
             }
 
@@ -149,7 +146,7 @@ public class ConcurrencyOptimalLinkedList extends AbstractCompositionalIntSet {
             }
 
             curr.deleted = true;
-            prev.next = curr.next;
+            prev.next = next;
 
             curr.unlock();
             prev.unlock();
