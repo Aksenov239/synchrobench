@@ -168,11 +168,18 @@ public class ConcurrencyOptimalLinkedList extends AbstractCompositionalIntSet {
 
     @Override
     public int size() {
-        return 0;
+        int total = 0;
+        Node curr = head;
+        while (curr != null) {
+            total++;
+            curr = curr.next;
+        }
+        return total - 2;
     }
 
     @Override
     public void clear() {
-
+        head = new Node(Integer.MIN_VALUE);
+        head.next = new Node(Integer.MAX_VALUE);
     }
 }
