@@ -46,7 +46,7 @@ public class LazyListBasedSetv2 extends AbstractCompositionalIntSet {
                 pred = curr;
                 curr = curr.next;
             }
-            if (!curr.marked && curr.value == v) {
+            if (curr.value == v) {
                 return false;
             }
             if (pred.marked) {
@@ -112,7 +112,7 @@ public class LazyListBasedSetv2 extends AbstractCompositionalIntSet {
         while (curr.value < v) {
             curr = curr.next;
         }
-        return curr.value == v && !curr.marked;
+        return curr.value == v;
     }
 
     @Override
