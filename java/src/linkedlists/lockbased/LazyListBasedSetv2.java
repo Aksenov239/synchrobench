@@ -46,6 +46,9 @@ public class LazyListBasedSetv2 extends AbstractCompositionalIntSet {
                 pred = curr;
                 curr = curr.next;
             }
+            if (!curr.marked && curr.value == v) {
+                return false;
+            }
             if (pred.marked) {
                 continue;
             }
@@ -53,14 +56,13 @@ public class LazyListBasedSetv2 extends AbstractCompositionalIntSet {
             try {
                 if (!pred.marked) {
                     curr = pred.next;
-                    if (curr.value == v) {
-                        return false;
-                    } else {
-                        Nodev2 node = new Nodev2(v);
-                        node.next = curr;
-                        pred.next = node;
-                        return true;
+                    if (curr.value <= v) {
+                        continue;
                     }
+                    Nodev2 node = new Nodev2(v);
+                    node.next = curr;
+                    pred.next = node;
+                    return true;
                 }
             } finally {
                 pred.unlock();
