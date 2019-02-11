@@ -9,7 +9,7 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class ConcurrencyOptimalLinkedList extends AbstractCompositionalIntSet {
     public class Node {
-        int value;
+        final int value;
         volatile Node next;
         volatile boolean deleted;
 

@@ -1,12 +1,10 @@
 package linkedlists.lockbased;
 
+import contention.abstractions.AbstractCompositionalIntSet;
+import linkedlists.lockbased.lazyutils.Nodev2;
+
 import java.util.Collection;
 import java.util.Random;
-
-import linkedlists.lockbased.lazyutils.Node;
-
-
-import contention.abstractions.AbstractCompositionalIntSet;
 
 /**
  * The code follows the lazy list-based set of Ch.9 of Herlihy and Shavit's book:
@@ -15,14 +13,14 @@ import contention.abstractions.AbstractCompositionalIntSet;
  * @author gramoli
  * 
  */
-public class LazyListBasedSet extends AbstractCompositionalIntSet {
+public class LazyListBasedSetv2 extends AbstractCompositionalIntSet {
 
-    final public Node head;
-    final public Node tail;
+    final public Nodev2 head;
+    final public Nodev2 tail;
 
-    public LazyListBasedSet() {
-        head = new Node(Integer.MIN_VALUE);
-        tail = new Node(Integer.MAX_VALUE);
+    public LazyListBasedSetv2() {
+        head = new Nodev2(Integer.MIN_VALUE);
+        tail = new Nodev2(Integer.MAX_VALUE);
         head.next = tail;
         tail.next = null;
     }
@@ -35,34 +33,32 @@ public class LazyListBasedSet extends AbstractCompositionalIntSet {
                 i++;
     }
 
-    private boolean validate(Node pred, Node curr) {
+    private boolean validate(Nodev2 pred, Nodev2 curr) {
         return !pred.marked && pred.next == curr;
     }
 
     @Override
     public boolean addInt(int v) {
         while (true) {
-            Node pred = head;
-            Node curr = head.next;
+            Nodev2 pred = head;
+            Nodev2 curr = head.next;
             while (curr.value < v) {
                 pred = curr;
                 curr = curr.next;
             }
             pred.lock();
-            curr.lock();
             try {
-                if (validate(pred, curr)) {
+                if (!pred.marked) {
                     if (curr.value == v) {
                         return false;
                     } else {
-                        Node node = new Node(v);
+                        Nodev2 node = new Nodev2(v);
                         node.next = curr;
                         pred.next = node;
                         return true;
                     }
                 }
             } finally {
-                curr.unlock();
                 pred.unlock();
             }
         }
@@ -71,8 +67,8 @@ public class LazyListBasedSet extends AbstractCompositionalIntSet {
     @Override
     public boolean removeInt(int v) {
         while (true) {
-            Node pred = head;
-            Node curr = head.next;
+            Nodev2 pred = head;
+            Nodev2 curr = head.next;
             while (curr.value < v) {
                 pred = curr;
                 curr = curr.next;
@@ -101,7 +97,7 @@ public class LazyListBasedSet extends AbstractCompositionalIntSet {
 
     @Override
     public boolean containsInt(int v) {
-        Node curr = head;
+        Nodev2 curr = head;
         while (curr.value < v) {
             curr = curr.next;
         }
@@ -129,7 +125,7 @@ public class LazyListBasedSet extends AbstractCompositionalIntSet {
     @Override
     public int size() {
         int cpt = 0;
-        Node curr = head;
+        Nodev2 curr = head;
         while (curr.value < Integer.MAX_VALUE)
             curr = curr.next;
         if (!curr.marked)
