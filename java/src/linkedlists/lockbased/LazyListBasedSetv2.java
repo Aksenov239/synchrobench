@@ -9,9 +9,8 @@ import java.util.Random;
 /**
  * The code follows the lazy list-based set of Ch.9 of Herlihy and Shavit's book:
  * "The Art of Multiprocessor Programming".
- * 
+ *
  * @author gramoli
- * 
  */
 public class LazyListBasedSetv2 extends AbstractCompositionalIntSet {
 
@@ -39,9 +38,10 @@ public class LazyListBasedSetv2 extends AbstractCompositionalIntSet {
 
     @Override
     public boolean addInt(int v) {
+        Nodev2 pred = head;
         while (true) {
-            Nodev2 pred = head;
-            Nodev2 curr = head.next;
+            pred = pred.marked ? head : pred;
+            Nodev2 curr = pred.next;
             while (curr.value < v) {
                 pred = curr;
                 curr = curr.next;
@@ -67,28 +67,30 @@ public class LazyListBasedSetv2 extends AbstractCompositionalIntSet {
 
     @Override
     public boolean removeInt(int v) {
+        Nodev2 pred = head;
         while (true) {
-            Nodev2 pred = head;
-            Nodev2 curr = head.next;
+            pred = pred.marked ? head : pred;
+            Nodev2 curr = pred.next;
             while (curr.value < v) {
                 pred = curr;
                 curr = curr.next;
             }
             pred.lock();
             try {
-                curr.lock();
-                try {
-                    if (validate(pred, curr)) {
-                        if (curr.value != v) {
-                            return false;
-                        } else {
+                if (!pred.marked) {
+                    curr = pred.next;
+                    if (curr.value != v) {
+                        return false;
+                    } else {
+                        curr.lock();
+                        try {
                             curr.marked = true;
                             pred.next = curr.next;
                             return true;
+                        } finally {
+                            curr.unlock();
                         }
                     }
-                } finally {
-                    curr.unlock();
                 }
             } finally {
                 pred.unlock();
