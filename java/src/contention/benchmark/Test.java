@@ -217,6 +217,7 @@ public class Test {
             throws InterruptedException {
         long startTime;
         fill(Parameters.range, Parameters.size);
+        System.err.println("end filling");
         Thread.sleep(5000);
         startTime = System.currentTimeMillis();
         for (Thread thread : threads)
