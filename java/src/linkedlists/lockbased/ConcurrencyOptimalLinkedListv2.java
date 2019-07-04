@@ -126,7 +126,7 @@ public class ConcurrencyOptimalLinkedListv2 extends AbstractCompositionalIntSet 
         while (true) {
             traverse(x, window);
             curr = window.curr;
-            if (curr.value != x || curr.deleted) {
+            if (curr.value != x) {
                 return false;
             }
 
