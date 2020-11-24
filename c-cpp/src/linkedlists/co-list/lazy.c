@@ -24,6 +24,9 @@
  * GNU General Public License for more details.
  */
 
+#include <cassert>
+#include <iostream>
+#include <atomic>
 #include "lazy.h"
 
 inline int is_marked_ref(long i) {
@@ -49,12 +52,34 @@ inline node_l_t *get_marked_ref(node_l_t *n) {
   return (node_l_t *) set_mark((long) n);
 }
 
-/*
- * Checking that both curr and pred are both unmarked and that pred's next pointer
- * points to curr to verify that the entries are adjacent and present in the list.
- */
-inline int parse_validate(node_l_t *pred, node_l_t *curr) {
-  return (!is_marked_ref((long) (pred->next)) && !is_marked_ref((long) (curr->next)) && (pred->next == curr));
+inline int lock_ref(node_l_t *node, node_l_t *next) {
+  __asm volatile ("mfence" ::: "memory");
+  node_l_t* n = node->next;
+  if (is_marked_ref((long) n) || n != next) {
+    return 0;
+  }
+  LOCK(&node->lock);
+  n = node->next;
+  if (is_marked_ref((long) n) || n != next){
+    UNLOCK(&node->lock);
+    return 0;
+  }
+  return 1;
+}
+
+inline int lock_val(node_l_t *node, val_t val) {
+  __asm volatile ("mfence" ::: "memory");
+  node_l_t* n = node->next;
+  if (is_marked_ref((long) n) || n->val != val) {
+    return 0;
+  }
+  LOCK(&node->lock);
+  n = node->next;
+  if (is_marked_ref((long) n) || n->val != val){
+    UNLOCK(&node->lock);
+    return 0;
+  }
+  return 1;
 }
 
 int parse_find(intset_l_t *set, val_t val) {
@@ -62,15 +87,14 @@ int parse_find(intset_l_t *set, val_t val) {
   curr = set->head;
   while (curr->val < val)
     curr = get_unmarked_ref(curr->next);
-  return ((curr->val == val) && !is_marked_ref((long) (curr->next)));
+  return ((curr->val == val) && !is_marked_ref((long) curr->next));
 }
 
 int parse_insert(intset_l_t *set, val_t val) {
   node_l_t *curr, *pred, *newnode;
-
-  int result = 0;
-  pred = set->head;
-  while (!result) {         
+//  std::cerr << "insert " << val << std::endl;
+  
+  while (1) {         
     pred = set->head;
     curr = get_unmarked_ref(pred->next);
     while (curr->val < val) {
@@ -80,15 +104,18 @@ int parse_insert(intset_l_t *set, val_t val) {
     if (curr->val == val) {
       return 0;
     }
-    LOCK(&pred->lock);
-    result = (parse_validate(pred, curr) && (curr->val != val));
-    if (result) {
-      newnode = new_node_l(val, curr, 0);
-      pred->next = newnode;
-    } 
+    if (!lock_ref(pred, curr)) {
+//      std::cerr << "Fuck insert!\n";
+      continue;
+    }
+
+//    if (!is_marked_ref((long) (pred->next)) && pred->next == curr) {} else {std::cerr << "Fuck!\n"; }
+
+    newnode = new_node_l(val, curr, 0);
+    pred->next = newnode;
     UNLOCK(&pred->lock);
+    return 1;
   }
-  return result;
 }
 
 /*
@@ -101,10 +128,11 @@ int parse_insert(intset_l_t *set, val_t val) {
  * free the memory.
  */
 int parse_delete(intset_l_t *set, val_t val) {
-  node_l_t *pred, *curr;
-  int result = 0;
-  
-  while (!result) {
+  node_l_t *pred, *curr, *next;
+
+//  std::cerr << "delete " << val << std::endl;
+
+  while (1) {
     pred = set->head;
     curr = get_unmarked_ref(pred->next);
     while (curr->val < val) {
@@ -114,15 +142,27 @@ int parse_delete(intset_l_t *set, val_t val) {
     if (curr->val != val) {
       return 0;
     }
-    LOCK(&pred->lock);
-    LOCK(&curr->lock);
-    result = (parse_validate(pred, curr) && (val == curr->val));
-    if (result) {
-      curr->next = get_marked_ref(curr->next);
-      pred->next = get_unmarked_ref(curr->next);
+
+    next = get_unmarked_ref(curr->next);
+
+    if (!lock_val(pred, val)) {
+//      std::cerr << "Fuck delete!\n";
+      continue;
     }
+    curr = pred->next;
+
+    if (!lock_ref(curr, next)) {
+//      std::cerr << "Fuck delete!\n";
+      UNLOCK(&pred->lock);
+      continue;
+    }
+
+//    if (!is_marked_ref((long) (pred->next)) && !is_marked_ref((long) (curr->next)) && pred->next == curr && curr->next == next) {} else {std::cerr << "Fuck!\n"; }
+
+    curr->next = get_marked_ref(next);
+    pred->next = next;
     UNLOCK(&curr->lock);
     UNLOCK(&pred->lock);
+    return 1;
   }
-  return result;
 }

@@ -1,4 +1,5 @@
 ROOT = ../../..
+MALLOC=TC
 
 include $(ROOT)/common/Makefile.common
 
@@ -9,7 +10,7 @@ else ifeq ($(STM),LOCKFREE)
 else
   BINS = $(BINDIR)/$(STM)-linkedlist
 endif
-CFLAGS += -std=gnu89
+CFLAGS += -std=c++14
 
 .PHONY:	all clean
 

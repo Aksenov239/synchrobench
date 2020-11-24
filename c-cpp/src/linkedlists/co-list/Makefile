@@ -3,7 +3,7 @@ MALLOC=TC
 
 include $(ROOT)/common/Makefile.common
 
-BINS = $(BINDIR)/$(LOCK)-lazy-list
+BINS = $(BINDIR)/$(LOCK)-co-list
 CFLAGS += -std=c++14
 
 .PHONY:	all clean
