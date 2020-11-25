@@ -14,13 +14,13 @@ XBDIR 		?= SET_XBOOST_PATH
 
 # Compiler
 SOLARIS_CC 	?= gcc
-CC		= gcc
+CC		= g++
 
 # Version
 ifeq ($(VERSION),DEBUG)
      CFLAGS     += -g -DDEBUG -O0
 else
-     CFLAGS     += -O3 -DNDEBUG
+     CFLAGS     += -O2 -DNDEBUG
 endif
 
 # Parallelism
@@ -229,8 +229,10 @@ endif
 # Memory Mgmt
 #############
 
+#$(shell echo $(MALLOC))
+
 ifeq ($(MALLOC), TC)
-  LDFLAGS += -ltcmalloc
+  LDFLAGS += -L/nfs/scistore08/alistgrp/vaksenov/work/gperftools/lib -ltcmalloc
   CFLAGS += -fno-builtin-malloc -fno-builtin-calloc -fno-builtin-realloc -fno-builtin-free
 endif
 

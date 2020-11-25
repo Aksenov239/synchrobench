@@ -71,7 +71,9 @@ int parse_insert(intset_l_t *set, val_t val) {
   int result = 0;
   pred = set->head;
   while (!result) {         
-    pred = set->head;
+    if (is_marked_ref((long)(pred->next))) {
+      pred = set->head;
+    }
     curr = get_unmarked_ref(pred->next);
     while (curr->val < val) {
       pred = curr;
@@ -103,9 +105,12 @@ int parse_insert(intset_l_t *set, val_t val) {
 int parse_delete(intset_l_t *set, val_t val) {
   node_l_t *pred, *curr;
   int result = 0;
-  
+
+  pred = set->head;
   while (!result) {
-    pred = set->head;
+    if (is_marked_ref((long)(pred->next))) {
+      pred = set->head;
+    }
     curr = get_unmarked_ref(pred->next);
     while (curr->val < val) {
       pred = curr;
