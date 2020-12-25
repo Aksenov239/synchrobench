@@ -132,7 +132,6 @@ void *test(void *data) {
 				val = rand_range_re(&d->seed, d->range);
 				if (set_add_l(d->set, val, TRANSACTIONAL)) {
 					d->nb_added++;
-					last = val;
 				} 				
 				d->nb_add++;
 				
@@ -143,7 +142,6 @@ void *test(void *data) {
 				if (set_remove_l(d->set, val, TRANSACTIONAL)) {
 					d->nb_removed++;
 					/* Repeat until successful, to avoid size variations */
-					last = -1;
 				} 
 				d->nb_remove++;
 			}
@@ -384,12 +382,6 @@ int main(int argc, char **argv)
       fprintf(stderr, "Error creating thread\n");
       exit(1);
     }
-
-    cpu_set_t cpuset;
-    CPU_ZERO(&cpuset);
-    CPU_SET(i, &cpuset);
-    int rc = pthread_setaffinity_np(threads[i],
-                                    sizeof(cpu_set_t), &cpuset);
   }
   pthread_attr_destroy(&attr);
 	
