@@ -25,12 +25,12 @@
 
 int set_contains_l(intset_l_t *set, val_t val, int transactional)
 {
-	parse_find(set, val);
+	return parse_find(set, val);
 }
 
 int set_add_l(intset_l_t *set, val_t val, int transactional)
 {  
-	parse_insert(set, val);
+	return parse_insert(set, val);
 }
 
 int set_remove_l(intset_l_t *set, val_t val, int transactional)
