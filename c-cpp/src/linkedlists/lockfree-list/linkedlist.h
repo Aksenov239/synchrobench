@@ -53,6 +53,7 @@ typedef intptr_t val_t;
 typedef struct node {
 	val_t val;
 	struct node *next;
+	char padding[112];
 } node_t;
 
 typedef struct intset {

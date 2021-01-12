@@ -116,6 +116,7 @@ typedef struct thread_data {
 	intset_t *set;
 	barrier_t *barrier;
 	unsigned long failures_because_contention;
+        char padding[128];
 } thread_data_t;
                                                 
 void *test(void *data) {

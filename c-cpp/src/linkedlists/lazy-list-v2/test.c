@@ -109,6 +109,7 @@ typedef struct thread_data {
   unsigned int seed;
   intset_l_t *set;
   barrier_t *barrier;
+  char padding[128];
 } thread_data_t;
 
 
@@ -158,7 +159,6 @@ void *test(void *data) {
 		
 		/* Is the next op an update? */
 		unext = (rand_range_re(&d->seed, 100) - 1 < d->update);
-
 			
   }	
   return NULL;
@@ -383,7 +383,6 @@ int main(int argc, char **argv)
       fprintf(stderr, "Error creating thread\n");
       exit(1);
     }
-
     cpu_set_t cpuset;
     CPU_ZERO(&cpuset);
     CPU_SET(i, &cpuset);

@@ -77,6 +77,7 @@ typedef struct node_l {
   val_t val;
   struct node_l *next;
   volatile int lock;
+  char padding[104];
 } node_l_t;
 
 typedef struct intset_l {

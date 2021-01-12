@@ -63,12 +63,12 @@ inline void unlock(volatile int* l) {
 inline int lock_ref(node_l_t *node, node_l_t *next) {
 //  __asm volatile ("mfence" ::: "memory");
   node_l_t* n = node->next;
-  if (is_marked_ref((long) n) || n != next) {
+  if (n != next) {
     return 0;
   }
   lock(&node->lock);
   n = node->next;
-  if (is_marked_ref((long) n) || n != next){
+  if (n != next){
     unlock(&node->lock);
     return 0;
   }
